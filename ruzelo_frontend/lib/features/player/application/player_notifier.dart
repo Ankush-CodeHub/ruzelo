@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
 import '../../../core/audio/audio_visualizer_controller.dart';
+import '../../../core/config/api_config.dart';
 import '../../../core/theme/dynamic_theme_controller.dart';
 
 class TrackItem {
@@ -164,7 +165,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     TrackItem? lastPlayed;
     try {
       final lastPlayedResp = await http
-          .get(Uri.parse('http://127.0.0.1:8000/api/v1/tracks/last-played'))
+          .get(Uri.parse(ApiConfig.lastPlayed))
           .timeout(const Duration(seconds: 4));
       if (lastPlayedResp.statusCode == 200 &&
           lastPlayedResp.body.isNotEmpty &&
@@ -178,7 +179,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
 
     try {
       final resp = await http
-          .get(Uri.parse('http://127.0.0.1:8000/api/v1/tracks/live-latest?limit=25'))
+          .get(Uri.parse('${ApiConfig.liveLatest}?limit=25'))
           .timeout(const Duration(seconds: 6));
       if (resp.statusCode == 200) {
         final List<dynamic> data = jsonDecode(resp.body);
@@ -326,7 +327,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
     // Persist last played track to backend so it reloads on app startup
     try {
       http.post(
-        Uri.parse('http://127.0.0.1:8000/api/v1/tracks/last-played'),
+        Uri.parse(ApiConfig.lastPlayed),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(track.toJson()),
       );
@@ -348,7 +349,7 @@ class PlayerNotifier extends StateNotifier<PlayerState> {
   Future<void> _resolveFullSongInBackground(TrackItem track) async {
     try {
       final uri = Uri.parse(
-        'http://127.0.0.1:8000/api/v1/tracks/resolve-full?title=${Uri.encodeComponent(track.title)}&artist=${Uri.encodeComponent(track.artist)}',
+        '${ApiConfig.resolveFull}?title=${Uri.encodeComponent(track.title)}&artist=${Uri.encodeComponent(track.artist)}',
       );
       final resp = await http.get(uri).timeout(const Duration(seconds: 12));
       if (resp.statusCode == 200) {

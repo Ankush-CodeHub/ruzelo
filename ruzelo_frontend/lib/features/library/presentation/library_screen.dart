@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import '../../../core/config/api_config.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/ruzelo_atmosphere_background.dart';
@@ -35,8 +36,8 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   Future<void> _fetchLibraryContent() async {
     setState(() => _isLoading = true);
     try {
-      final pFuture = http.get(Uri.parse('http://127.0.0.1:8000/api/v1/tracks/live-playlists')).timeout(const Duration(seconds: 8));
-      final tFuture = http.get(Uri.parse('http://127.0.0.1:8000/api/v1/tracks/live-latest?limit=10')).timeout(const Duration(seconds: 8));
+      final pFuture = http.get(Uri.parse(ApiConfig.livePlaylists)).timeout(const Duration(seconds: 8));
+      final tFuture = http.get(Uri.parse('${ApiConfig.liveLatest}?limit=10')).timeout(const Duration(seconds: 8));
 
       final results = await Future.wait([pFuture, tFuture]);
       final pResp = results[0];

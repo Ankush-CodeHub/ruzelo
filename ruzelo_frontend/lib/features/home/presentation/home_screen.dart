@@ -13,6 +13,8 @@ import '../../player/application/player_notifier.dart';
 import '../../playlist/domain/mood_playlists_data.dart';
 import '../../playlist/presentation/playlist_screen.dart';
 
+import '../../../core/config/api_config.dart';
+
 /// 100% Real Live Music discovery feed with Integrated Header Search.
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -65,7 +67,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _fetchSearchResults(String query) async {
     setState(() => _isSearching = true);
     try {
-      final uri = Uri.parse('http://127.0.0.1:8000/api/v1/tracks/live-search?q=${Uri.encodeComponent(query)}&limit=25');
+      final uri = Uri.parse('${ApiConfig.liveSearch}?q=${Uri.encodeComponent(query)}&limit=25');
       final response = await http.get(uri).timeout(const Duration(seconds: 6));
 
       if (response.statusCode == 200) {
@@ -90,11 +92,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     setState(() => _isLoading = true);
     try {
       final latestFuture = http
-          .get(Uri.parse('http://127.0.0.1:8000/api/v1/tracks/live-latest?limit=25'))
+          .get(Uri.parse('${ApiConfig.liveLatest}?limit=25'))
           .timeout(const Duration(seconds: 8));
 
       final playlistsFuture = http
-          .get(Uri.parse('http://127.0.0.1:8000/api/v1/tracks/live-playlists'))
+          .get(Uri.parse(ApiConfig.livePlaylists))
           .timeout(const Duration(seconds: 8));
 
       final results = await Future.wait([latestFuture, playlistsFuture]);
