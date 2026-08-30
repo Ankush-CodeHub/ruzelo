@@ -1,0 +1,38 @@
+name: ruzelo_frontend
+description: "A cinematic next-generation music streaming experience with glassmorphism and atmospheric shaders."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.5.1
+  just_audio: ^0.9.36
+  audio_service: ^0.18.12
+  palette_generator: ^0.3.3+3
+  dio: ^5.4.1
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.0
+  cached_network_image: ^3.3.1
+  intl: ^0.19.0
+  http: ^1.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+
+  shaders:
+    - assets/shaders/atmosphere_mesh.frag
+    - assets/shaders/atmosphere_glow.frag
+    - assets/shaders/liquid_glass.frag
