@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  ruzelo-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ruzelo_backend_api
+    ports:
+      - "8000:8000"
+    environment:
+      - PROJECT_NAME=Ruzelo API
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql+asyncpg://ruzelo_user:ruzelo_secret_password@postgres:5432/ruzelo_db
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=ruzelo_super_secret_jwt_encryption_key_2026_atmosphere
+      - REFRESH_SECRET_KEY=ruzelo_super_secret_refresh_token_key_2026_infinity
+      - STREAM_SECRET_KEY=ruzelo_audio_stream_authorization_ticket_secret_key
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+    volumes:
+      - .:/app
+      - ruzelo-audio-data:/app/media/audio
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - ruzelo-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: ruzelo_postgres
+    environment:
+      POSTGRES_USER: ruzelo_user
+      POSTGRES_PASSWORD: ruzelo_secret_password
+      POSTGRES_DB: ruzelo_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ruzelo-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ruzelo_user -d ruzelo_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - ruzelo-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: ruzelo_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ruzelo-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - ruzelo-network
+
+volumes:
+  ruzelo-audio-data:
+  ruzelo-postgres-data:
+  ruzelo-redis-data:
+
+networks:
+  ruzelo-network:
+    driver: bridge
